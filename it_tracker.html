@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Support Operations Tracker</title>
+    <style>
+        :root {
+            --primary-color: #4a154b; /* Victorian Purple style */
+            --secondary-color: #611f69;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Tabs Menu */
+        .tab-menu {
+            display: flex;
+            justify-content: center;
+            background-color: var(--secondary-color);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            color: #ddd;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            font-size: 16px;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Forms Layout */
+        .form-group {
+            margin-bottom: 15px;
+            display: inline-block;
+            width: 31%;
+            margin-right: 2%;
+            vertical-align: top;
+        }
+
+        .form-group.full-width {
+            width: 98%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button.submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button.submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Dashboard Stock Cards */
+        .stock-dashboard {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stock-card {
+            flex: 1;
+            background: #f1f3f9;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .stock-card h3 { margin: 0; font-size: 14px; color: #666; }
+        .stock-card p { margin: 10px 0 0 0; font-size: 24px; font-weight: bold; color: var(--primary-color); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: var(--primary-color);
+        }
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+    <header>💻 IT Support Operations & Asset Tracker</header>
+
+    <!-- Tabs Navigation -->
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab(event, 'walkin')">Walk-In Users</button>
+        <button class="tab-btn" onclick="openTab(event, 'calllog')">Out of Warranty Call Logs</button>
+        <button class="tab-btn" onclick="openTab(event, 'floorwalk')">Floor Walk</button>
+        <button class="tab-btn" onclick="openTab(event, 'assetmgt')">PR & Stock Management</button>
+        <button class="tab-btn" onclick="openTab(event, 'peripherals')">Wireless Mouse & Headset</button>
+    </div>
+
+    <div class="container">
+
+        <!-- TAB 1: WALK-IN USER TRACKER -->
+        <div id="walkin" class="tab-content active">
+            <h2>User Walk-In Tracker</h2>
+            <form id="walkinForm" onsubmit="addWalkIn(event)">
+                <div class="form-group">
+                    <label>Employee ID:</label>
+                    <input type="text" id="empId" placeholder="எ.கா: 10245" oninput="autoPopulateUser()" required>
+                </div>
+                <div class="form-group">
+                    <label>Employee Name:</label>
+                    <input type="text" id="empName" readonly placeholder="Auto-populated">
+                </div>
+                <div class="form-group">
+                    <label>Department / Program:</label>
+                    <input type="text" id="empDept" readonly placeholder="Auto-populated">
+                </div>
+                <div class="form-group">
+                    <label>Laptop Serial No:</label>
+                    <input type="text" id="lapSerial" readonly placeholder="Auto-populated">
+                </div>
+                <div class="form-group">
+                    <label>Issue Type:</label>
+                    <select id="issueType">
+                        <option value="Laptop Issue">Laptop Issue</option>
+                        <option value="Software Issue">Software Issue</option>
+                        <option value="Hardware Issue">Hardware Issue</option>
+                        <option value="Network/Internet">Network/Internet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Warranty Condition:</label>
+                    <select id="warrantyStatus">
+                        <option value="In Warranty">In Warranty</option>
+                        <option value="Out of Warranty">Out of Warranty</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Current Status:</label>
+                    <select id="currentStatus">
+                        <option value="In-Progress">In-Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Escalated to Vendor">Escalated to Vendor</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Remarks / Resolution:</label>
+                    <textarea id="walkinRemarks" rows="2" placeholder="Issue என்ன? எப்படி ரெடி பண்ணீங்க?"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Log Visit</button>
+            </form>
+
+            <h3>Live Logs</h3>
+            <table id="walkinTable">
+                <tr>
+                    <th>Date & Time</th><th>Emp ID</th><th>Name</th><th>Dept</th><th>Issue</th><th>Warranty</th><th>Status</th>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TAB 2: CALL LOG TRACKER -->
+        <div id="calllog" class="tab-content">
+            <h2>Warranty Out Laptop Call Log Tracker</h2>
+            <form id="calllogForm" onsubmit="addCallLog(event)">
+                <div class="form-group">
+                    <label>Laptop Serial Number:</label>
+                    <input type="text" id="clSerial" required>
+                </div>
+                <div class="form-group">
+                    <label>Vendor Ticket / Case ID:</label>
+                    <input type="text" id="clTicket" placeholder="Dell Case ID" required>
+                </div>
+                <div class="form-group">
+                    <label>Dispatch Destination:</label>
+                    <select id="clDestType">
+                        <option value="Office Location">Office Location</option>
+                        <option value="User Home Location">User Home Location</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>User Location Address & Phone:</label>
+                    <textarea id="clAddress" rows="2" placeholder="ஹோம் லொகேஷன்னா அட்ரஸ் போடுங்க..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Log Call</button>
+            </form>
+
+            <h3>Active Vendor Dispatches</h3>
+            <table id="calllogTable">
+                <tr>
+                    <th>Date</th><th>Serial No</th><th>Vendor Case ID</th><th>Destination</th><th>Address Info</th>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TAB 3: FLOOR WALK TRACKER -->
+        <div id="floorwalk" class="tab-content">
+            <h2>Daily Floor Walk Tracker</h2>
+            <form id="floorwalkForm" onsubmit="addFloorWalk(event)">
+                <div class="form-group">
+                    <label>Engineer Name:</label>
+                    <input type="text" id="fwEngName" required>
+                </div>
+                <div class="form-group">
+                    <label>Floor / Bay Checked:</label>
+                    <input type="text" id="fwFloor" placeholder="எ.கா: 1st Floor - B Wing" required>
+                </div>
+                <div class="form-group">
+                    <label>Unwanted Assets Found?:</label>
+                    <select id="fwAssetsFound">
+                        <option value="No Unwanted Assets">No (எந்த ஒரு அன்வாண்ட்டட் அஸ்ஸெட்டும் இல்லை)</option>
+                        <option value="Found & Cleared">Yes (கண்டுபிடிக்கப்பட்டு ஐடி ரூமிற்கு மாற்றப்பட்டது)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Action Taken / Notes:</label>
+                    <input type="text" id="fwNotes" placeholder="Generator/Auditor இஷ்யூ வராம இருக்க க்ளியர் பண்ணிய விபரம்">
+                </div>
+                <button type="submit" class="submit-btn">Confirm Floor Status</button>
+            </form>
+
+            <h3>Floor Audit Logs</h3>
+            <table id="floorwalkTable">
+                <tr>
+                    <th>Date</th><th>Engineer</th><th>Floor/Bay</th><th>Unwanted Assets?</th><th>Notes</th>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TAB 4: PR & STOCK MANAGEMENT -->
+        <div id="assetmgt" class="tab-content">
+            <h2>PR & Material Stock Tracker</h2>
+            <div class="stock-dashboard">
+                <div class="stock-card"><h3>Total Received Items</h3><p id="totalRec">0</p></div>
+                <div class="stock-card"><h3>Distributed to Users</h3><p id="totalDist">0</p></div>
+                <div class="stock-card"><h3>Available Balance Stock</h3><p id="totalBal">0</p></div>
+            </div>
+
+            <form id="prForm" onsubmit="addPRStock(event)">
+                <div class="form-group">
+                    <label>PR Number / Chalan No:</label>
+                    <input type="text" id="prNo" required>
+                </div>
+                <div class="form-group">
+                    <label>Material Purpose / Description:</label>
+                    <input type="text" id="prDesc" placeholder="எ.கா: New Batch Laptops" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity Received:</label>
+                    <input type="number" id="prQty" required>
+                </div>
+                <button type="submit" class="submit-btn">Add to Stock</button>
+            </form>
+
+            <h3>Stock History</h3>
+            <table id="prTable">
+                <tr>
+                    <th>Date</th><th>PR/Chalan No</th><th>Description</th><th>Qty Received</th>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TAB 5: WIRELESS MOUSE & HEADSET APPROVAL -->
+        <div id="peripherals" class="tab-content">
+            <h2>Wireless Mouse & Headset Issuance Tracker</h2>
+            <div class="stock-dashboard">
+                <div class="stock-card"><h3>Total Mouse Stock</h3><p>50</p></div>
+                <div class="stock-card"><h3>Mouse Issued</h3><p id="mouseIssuedCount">0</p></div>
+                <div class="stock-card"><h3>Available Mouse</h3><p id="mouseBalCount">50</p></div>
+            </div>
+
+            <form idperipheralsForm onsubmit="addPeripheralIssue(event)">
+                <div class="form-group">
+                    <label>Employee ID:</label>
+                    <input type="text" id="periEmpId" required>
+                </div>
+                <div class="form-group">
+                    <label>Asset Type Provided:</label>
+                    <select id="periType">
+                        <option value="Wireless Mouse">Wireless Mouse</option>
+                        <option value="Headset">Headset</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Approved By (External Level Manager):</label>
+                    <input type="text" id="periApprover" placeholder="Manager Name" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Approval Email / Attachment Link:</label>
+                    <input type="text" id="periMailLink" placeholder="Paste Google Drive/Sharepoint Link here">
+                </div>
+                <button type="submit" class="submit-btn" onclick="addPeripheralIssue(event)">Issue Asset</button>
+            </form>
+
+            <h3>Issuance & Approval History</h3>
+            <table id="peripheralTable">
+                <tr>
+                    <th>Date</th><th>Emp ID</th><th>Asset Type</th><th>Approved By</th><th>Approval Attachment Link</th>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // மோக் மாஸ்டர் டேட்டாபேஸ் (உங்க ஆபீஸ் டேட்டா மாதிரி ஒரு சாம்பிள்)
+        const masterDB = {
+            "1001": { name: "Priya", dept: "Operations / Process A", serial: "DELL-5430-XYZ1" },
+            "1002": { name: "Shiva", dept: "HR Team", serial: "HP-PRO-ABC2" },
+            "1003": { name: "Lavanya", dept: "Desktop Support", serial: "DELL-7420-LMN3" }
+        };
+
+        // அஸெட் ஸ்டாக் கவுண்டர்கள்
+        let totalReceivedStock = 0;
+        let totalDistributedStock = 0;
+        let wirelessMouseIssued = 0;
+
+        // டேப்கள் மாறுவதற்கான ஃபங்க்ஷன்
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Emp ID போடும்போது ஆட்டோமேட்டிக்கா ஃபில் ஆகும் ஃபங்க்ஷன்
+        function autoPopulateUser() {
+            let id = document.getElementById("empId").value.trim();
+            if(masterDB[id]) {
+                document.getElementById("empName").value = masterDB[id].name;
+                document.getElementById("empDept").value = masterDB[id].dept;
+                document.getElementById("lapSerial").value = masterDB[id].serial;
+            } else {
+                document.getElementById("empName").value = "";
+                document.getElementById("empDept").value = "";
+                document.getElementById("lapSerial").value = "";
+            }
+        }
+
+        // Walk-In சேர்க்க
+        function addWalkIn(e) {
+            e.preventDefault();
+            let table = document.getElementById("walkinTable");
+            let row = table.insertRow(-1);
+            let now = new Date().toLocaleString();
+            
+            row.insertCell(0).innerText = now;
+            row.insertCell(1).innerText = document.getElementById("empId").value;
+            row.insertCell(2).innerText = document.getElementById("empName").value || "Unknown User";
+            row.insertCell(3).innerText = document.getElementById("empDept").value || "N/A";
+            row.insertCell(4).innerText = document.getElementById("issueType").value;
+            row.insertCell(5).innerText = document.getElementById("warrantyStatus").value;
+            row.insertCell(6).innerText = document.getElementById("currentStatus").value;
+            
+            totalDistributedStock++; // ட்ராக்கர் அப்டேட்க்காக
+            updateDashboard();
+            document.getElementById("walkinForm").reset();
+        }
+
+        // Call Log சேர்க்க
+        function addCallLog(e) {
+            e.preventDefault();
+            let table = document.getElementById("calllogTable");
+            let row = table.insertRow(-1);
+            let now = new Date().toLocaleDateString();
+
+            row.insertCell(0).innerText = now;
+            row.insertCell(1).innerText = document.getElementById("clSerial").value;
+            row.insertCell(2).innerText = document.getElementById("clTicket").value;
+            row.insertCell(3).innerText = document.getElementById("clDestType").value;
+            row.insertCell(4).innerText = document.getElementById("clAddress").value;
+
+            document.getElementById("calllogForm").reset();
+        }
+
+        // Floor Walk சேர்க்க
+        function addFloorWalk(e) {
+            e.preventDefault();
+            let table = document.getElementById("floorwalkTable");
+            let row = table.insertRow(-1);
+            let now = new Date().toLocaleDateString();
+
+            row.insertCell(0).innerText = now;
+            row.insertCell(1).innerText = document.getElementById("fwEngName").value;
+            row.insertCell(2).innerText = document.getElementById("fwFloor").value;
+            row.insertCell(3).innerText = document.getElementById("fwAssetsFound").value;
+            row.insertCell(4).innerText = document.getElementById("fwNotes").value || "No incidents";
+
+            document.getElementById("floorwalkForm").reset();
+        }
+
+        // PR Stock சேர்க்க
+        function addPRStock(e) {
+            e.preventDefault();
+            let qty = parseInt(document.getElementById("prQty").value);
+            totalReceivedStock += qty;
+            
+            let table = document.getElementById("prTable");
+            let row = table.insertRow(-1);
+            let now = new Date().toLocaleDateString();
+
+            row.insertCell(0).innerText = now;
+            row.insertCell(1).innerText = document.getElementById("prNo").value;
+            row.insertCell(2).innerText = document.getElementById("prDesc").value;
+            row.insertCell(3).innerText = qty;
+
+            updateDashboard();
+            document.getElementById("prForm").reset();
+        }
+
+        // Peripheral Issue சேர்க்க
+        function addPeripheralIssue(e) {
+            e.preventDefault();
+            let type = document.getElementById("periType").value;
+            if(type === "Wireless Mouse") {
+                wirelessMouseIssued++;
+            }
+
+            let table = document.getElementById("peripheralTable");
+            let row = table.insertRow(-1);
+            let now = new Date().toLocaleDateString();
+
+            row.insertCell(0).innerText = now;
+            row.insertCell(1).innerText = document.getElementById("periEmpId").value;
+            row.insertCell(2).innerText = type;
+            row.insertCell(3).innerText = document.getElementById("periApprover").value;
+            
+            let link = document.getElementById("periMailLink").value;
+            row.insertCell(4).innerHTML = link ? `<a href="${link}" target="_blank">View Mail</a>` : "No Link Attached";
+
+            document.getElementById("mouseIssuedCount").innerText = wirelessMouseIssued;
+            document.getElementById("mouseBalCount").innerText = 50 - wirelessMouseIssued;
+            
+            // படிவத்தை ரீசெட் செய்ய
+            document.getElementById("periEmpId").value = "";
+            document.getElementById("periApprover").value = "";
+            document.getElementById("periMailLink").value = "";
+        }
+
+        // டேஷ்போர்டு எண்களை அப்டேட் செய்ய
+        function updateDashboard() {
+            document.getElementById("totalRec").innerText = totalReceivedStock;
+            document.getElementById("totalDist").innerText = totalDistributedStock;
+            document.getElementById("totalBal").innerText = totalReceivedStock - totalDistributedStock;
+        }
+    </script>
+</body>
+</html>
